@@ -21,6 +21,7 @@ uploaded_image_path = None
 # Membuat video capture untuk menangkap video dari webcam
 cap = cv2.VideoCapture(0)
 
+# COLOR PICKER FROM LIVE WEBCAM
 # Fungsi untuk menentukan nama warna berdasarkan RGB
 def get_color_name(rgb_color):
     min_distance = float('inf')
@@ -96,6 +97,7 @@ def webcam():
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# COLOR PICKER FROM UPLOADED IMAGE
 # Route untuk upload gambar
 @app.route('/upload_image', methods=['GET', 'POST'])
 def upload_image():
@@ -153,31 +155,31 @@ def get_color_at():
 def home():
     return render_template('home.html')
 
-# Route untuk halaman utama
+
+# COLOR BLIND SIMULATION
 @app.route('/simulation')
 def simulation():
     return render_template('simulation.html')
 
-
 # Fungsi simulasi buta warna
-def simulate_color_blindness(image, type='deuteranopia'):
-    if type == 'deuteranopia':
+def simulate_color_blindness(image, filter_type='clear'):
+    if filter_type == 'deuteranopia':
         transform = np.array([[0.56667, 0.43333, 0],
                               [0.55833, 0.44167, 0],
                               [0, 0.24167, 0.75833]])
-    elif type == 'protanopia':
+    elif filter_type == 'protanopia':
         transform = np.array([[0.367, 0.633, 0],
                               [0.125, 0.875, 0],
                               [0, 0.7, 0.3]])
-    elif type == 'tritanopia':
+    elif filter_type == 'tritanopia':
         transform = np.array([[0.95, 0.05, 0],
                               [0, 0.43333, 0.56667],
                               [0, 0.475, 0.525]])
-    elif type == 'achromatopsia':
+    elif filter_type == 'achromatopsia':
         transform = np.array([[0.299, 0.587, 0.114],
                               [0.299, 0.587, 0.114],
                               [0.299, 0.587, 0.114]])
-    elif type == 'achromatomaly':
+    elif filter_type == 'achromatomaly':
         transform = np.array([[0.618, 0.320, 0.062],
                               [0.163, 0.775, 0.062],
                               [0.163, 0.320, 0.516]])
@@ -194,10 +196,14 @@ def process():
     img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
 
     # Mendapatkan filter dari request
-    filter_type = request.form.get('filter', 'deuteranopia')
+    filter_type = request.form.get('filter', 'none')
 
-    # Menerapkan filter simulasi buta warna
-    filtered_img = simulate_color_blindness(img, filter_type)
+    # Jika filter_type adalah 'none', tidak perlu menerapkan filter
+    if filter_type == 'none':
+        filtered_img = img  # Gunakan gambar asli tanpa filter
+    else:
+        # Menerapkan filter simulasi buta warna
+        filtered_img = simulate_color_blindness(img, filter_type)
 
     # Encode kembali ke format JPEG dan kirim kembali ke frontend
     _, buffer = cv2.imencode('.jpg', filtered_img)

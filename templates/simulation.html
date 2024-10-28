@@ -19,13 +19,14 @@
     <h1>Webcam Color Blindness Simulation</h1>
 
     <div>
-        <video id="video" width="640" height="480" autoplay></video>
+        <video id="video" width="640" height="480" autoplay style="display: none;"></video>
         <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
     </div>
 
     <div id="controls">
         <label for="filter">Choose Color Blindness Type:</label>
         <select id="filter">
+            <option value="none" selected>Clear</option>
             <option value="deuteranopia">Deuteranopia</option>
             <option value="protanopia">Protanopia</option>
             <option value="tritanopia">Tritanopia</option>
@@ -38,6 +39,8 @@
     <div>
         <img id="output" alt="Filtered Webcam Stream">
     </div>
+
+    <p><a href="/">Back to Home</a></p>
 
     <script>
         const video = document.getElementById('video');
@@ -85,8 +88,11 @@
 
         // Mulai simulasi ketika tombol ditekan
         startButton.addEventListener('click', () => {
+            // Mulai proses pengambilan frame
             captureFrameAndSend();
         });
+        captureFrameAndSend()
+
     </script>
 </body>
 </html>
