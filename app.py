@@ -153,6 +153,57 @@ def get_color_at():
 def home():
     return render_template('home.html')
 
+# Route untuk halaman utama
+@app.route('/simulation')
+def simulation():
+    return render_template('simulation.html')
+
+
+# Fungsi simulasi buta warna
+def simulate_color_blindness(image, type='deuteranopia'):
+    if type == 'deuteranopia':
+        transform = np.array([[0.56667, 0.43333, 0],
+                              [0.55833, 0.44167, 0],
+                              [0, 0.24167, 0.75833]])
+    elif type == 'protanopia':
+        transform = np.array([[0.367, 0.633, 0],
+                              [0.125, 0.875, 0],
+                              [0, 0.7, 0.3]])
+    elif type == 'tritanopia':
+        transform = np.array([[0.95, 0.05, 0],
+                              [0, 0.43333, 0.56667],
+                              [0, 0.475, 0.525]])
+    elif type == 'achromatopsia':
+        transform = np.array([[0.299, 0.587, 0.114],
+                              [0.299, 0.587, 0.114],
+                              [0.299, 0.587, 0.114]])
+    elif type == 'achromatomaly':
+        transform = np.array([[0.618, 0.320, 0.062],
+                              [0.163, 0.775, 0.062],
+                              [0.163, 0.320, 0.516]])
+    else:
+        raise ValueError("Tipe buta warna tidak dikenal.")
+    
+    return cv2.transform(image, transform)
+
+# Route untuk menangani frame yang dikirim dari frontend dan menerapkan filter
+@app.route('/process', methods=['POST'])
+def process():
+    file = request.files['image'].read()
+    nparr = np.frombuffer(file, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+    # Mendapatkan filter dari request
+    filter_type = request.form.get('filter', 'deuteranopia')
+
+    # Menerapkan filter simulasi buta warna
+    filtered_img = simulate_color_blindness(img, filter_type)
+
+    # Encode kembali ke format JPEG dan kirim kembali ke frontend
+    _, buffer = cv2.imencode('.jpg', filtered_img)
+    return Response(buffer.tobytes(), mimetype='image/jpeg')
+
+
 # Jalankan aplikasi Flask
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
