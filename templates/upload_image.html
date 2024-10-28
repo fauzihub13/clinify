@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image for Color Picker</title>
+    <style>
+        body {
+            text-align: center;
+        }
+        img {
+            border: 2px solid #333;
+            cursor: crosshair /* Menggunakan kursor kustom */
+        }
+
+        
+        #color-info {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        #color-box {
+            width: 100px;
+            height: 100px;
+            margin-top: 10px;
+            display: inline-block;
+            border: 1px solid #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload Image for Color Picker</h1>
+    <form action="/upload_image" method="post" enctype="multipart/form-data">
+        <input type="file" name="image" accept="image/*">
+        <button type="submit">Upload Image</button>
+    </form>
+
+    {% if image_path %}
+    <h3>Uploaded Image</h3>
+    <img src="{{ image_path }}" width="640" height="480" id="uploaded-image">
+    <div id="color-info"></div>
+    <div id="color-box"></div> <!-- Kotak warna ditambahkan di sini -->
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const image = document.getElementById('uploaded-image');
+            const colorInfo = document.getElementById('color-info');
+            const colorBox = document.getElementById('color-box');
+
+            if (image) {
+                image.addEventListener('click', function(event) {
+                    // Mendapatkan ukuran asli dan tampilan gambar
+                    const rect = image.getBoundingClientRect();
+                    const scaleX = image.naturalWidth / rect.width;
+                    const scaleY = image.naturalHeight / rect.height;
+
+                    // Mendapatkan koordinat x, y pada gambar yang di-klik
+                    const x = Math.floor((event.clientX - rect.left) * scaleX);
+                    const y = Math.floor((event.clientY - rect.top) * scaleY);
+
+                    // Mengirimkan koordinat ke server untuk mendapatkan warna
+                    fetch('/get_color_at', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `x=${x}&y=${y}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            colorInfo.textContent = data.error;
+                        } else {
+                            // Tampilkan warna dan RGB di teks
+                            colorInfo.textContent = `Color: ${data.color_name}, RGB: (${data.rgb.r}, ${data.rgb.g}, ${data.rgb.b})`;
+                            
+                            // Set warna latar belakang kotak warna
+                            colorBox.style.backgroundColor = `rgb(${data.rgb.r}, ${data.rgb.g}, ${data.rgb.b})`;
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            }
+        });
+    </script>
+
+    <p><a href="/">Back to Home</a></p>
+</body>
+</html>
