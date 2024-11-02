@@ -1,0 +1,91 @@
+/* Make the video and canvas take up full screen */
+#video, #canvas {
+    display: none;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover; /* Ensures the video covers the whole area without stretching */
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#output{
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover; /* Ensures the video covers the whole area without stretching */
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Style controls section */
+#controls {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 28px 10px;
+    background-color: white; /* Slightly transparent background */
+    z-index: 1000; /* High z-index to ensure it stays on top */
+    display: flex;
+    justify-content: left;
+    gap: 10px; /* Space between control elements */
+    overflow-x: scroll;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+    
+}
+
+#filter {
+    display: flex;
+    gap: 10px; /* Jarak antar opsi */
+}
+
+#filter label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 16px; /* Padding untuk label */
+    background: linear-gradient(to top right,#0D99FF33 0%, #53CDD833 47%, #96EAB733 100%);
+    border-radius: 10px; /* Sudut melengkung */
+    transition: background-color 0.3s, color 0.3s; /* Transisi untuk efek hover */
+}
+
+#filter label:hover{
+    background: linear-gradient(to top right,#0D99FF 0%, #53CDD8 47%, #96EAB7 100%);
+}
+
+#filter input[type="radio"] {
+    display: none; 
+}
+
+/* Efek ketika radio button dipilih */
+#filter input[type="radio"]:checked + label {
+    background: linear-gradient(to top right,#0D99FF 0%, #53CDD8 47%, #96EAB7 100%);
+    color: white; /* Warna teks putih ketika dipilih */
+}
+
+.btn-back {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    width: 40px;
+}
+
+
+@media (min-width: 768px) and (max-width: 991.98px) { 
+    #controls {
+        display: flex;
+        justify-content: center !important;
+    }
+}
+
+@media (min-width: 992px) { 
+    #controls {
+        display: flex;
+        justify-content: center !important;
+    }
+}
+
+

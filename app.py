@@ -210,6 +210,12 @@ def process():
     return Response(buffer.tobytes(), mimetype='image/jpeg')
 
 
+# Route untuk halaman webcam
+@app.route('/camify')
+def camify():
+    return render_template('camify.html')
+
+
 # Jalankan aplikasi Flask
 if __name__ == '__main__':
     if not os.path.exists(app.config['UPLOAD_FOLDER']):
