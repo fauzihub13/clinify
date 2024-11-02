@@ -65,13 +65,33 @@
     color: white; /* Warna teks putih ketika dipilih */
 }
 
-.btn-back {
+.header{
     position: fixed;
+    width: 100vw;
     top: 20px;
-    left: 20px;
+    left: 0px;
     z-index: 1000;
-    width: 40px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0px 20px;
 }
+
+.btn-back {
+    width: 50px ;
+}
+
+.camera-options {
+    display: flex;
+    flex-direction: column; /* Atur agar elemen di dalamnya disusun vertikal */
+    align-items: flex-end;  /* Selaraskan elemen ke kanan */
+   /* Tambahkan jarak dari sisi kanan */
+}
+
+.btn-camera {
+    width: 50px;
+    margin-bottom: 5px; /* Tambahkan jarak antara ikon kamera dan dropdown */
+}
+
 
 
 @media (min-width: 768px) and (max-width: 991.98px) { 
