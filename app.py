@@ -17,11 +17,9 @@ app.config['UPLOAD_FOLDER'] = 'static/uploads/'
 # Membuat variabel global untuk menyimpan gambar yang diunggah
 uploaded_image = None
 uploaded_image_path = None
+current_rgb_color = (0, 0, 0)
+current_rgb_name = "Unknown"
 
-# Membuat video capture untuk menangkap video dari webcam
-cap = cv2.VideoCapture(0)
-
-# COLOR PICKER FROM LIVE WEBCAM
 # Fungsi untuk menentukan nama warna berdasarkan RGB
 def get_color_name(rgb_color):
     min_distance = float('inf')
@@ -37,65 +35,81 @@ def get_color_name(rgb_color):
 def draw_hollow_pointer(frame):
     height, width, _ = frame.shape
     center_x, center_y = width // 2, height // 2
-    pointer_size = 20  # Panjang garis pointer
-    hollow_size = 5    # Ukuran lubang di tengah pointer
-
-    # Membuat pointer tanda tambah dengan lubang di tengah
+    pointer_size = 20
+    hollow_size = 5
     color = (0, 0, 0)
-    # Garis horizontal dengan lubang di tengah
     cv2.line(frame, (center_x - pointer_size, center_y), (center_x - hollow_size, center_y), color, 2)
     cv2.line(frame, (center_x + hollow_size, center_y), (center_x + pointer_size, center_y), color, 2)
-    # Garis vertikal dengan lubang di tengah
     cv2.line(frame, (center_x, center_y - pointer_size), (center_x, center_y - hollow_size), color, 2)
     cv2.line(frame, (center_x, center_y + hollow_size), (center_x, center_y + pointer_size), color, 2)
 
 # Fungsi untuk menggambar indikator warna berdasarkan RGB
 def draw_color_indicator(frame, color):
-    color = tuple(int(c) for c in color)
+    global current_rgb_color
+    # color = tuple(int(c) for c in color)
     height, width, _ = frame.shape
     indicator_width = 180
     indicator_height = 60
     center_x = width // 2
     top_left_x = center_x - indicator_width // 2
-    cv2.rectangle(frame, (top_left_x, 10), (top_left_x + 50, 60), color, -1)
-    color_name = get_color_name(color)
+    cv2.rectangle(frame, (top_left_x, 10), (top_left_x + 50, 60), current_rgb_color, -1)
+    color_name = get_color_name(current_rgb_color)
     font = cv2.FONT_HERSHEY_SIMPLEX
     cv2.putText(frame, color_name, (top_left_x + 60, 45), font, 1, (0, 0, 0), 2, cv2.LINE_AA)
     cv2.rectangle(frame, (top_left_x - 5, 5), (top_left_x + indicator_width + 5, indicator_height + 5), (255, 255, 255), 2)
 
-# Fungsi untuk streaming video dari webcam
-def generate_frames():
+# Fungsi untuk streaming video dari webcam berdasarkan indeks kamera
+def generate_frames(camera_index=0):
+    global current_rgb_color
+    global current_rgb_name
+    cap = cv2.VideoCapture(int(camera_index))
+    
     while True:
-        success, frame = cap.read()  # Membaca frame dari kamera
+        success, frame = cap.read()
         if not success:
             break
-        else:
-            height, width, _ = frame.shape
-            center_x, center_y = width // 2, height // 2
+        
+        # Dapatkan warna dari titik pusat
+        height, width, _ = frame.shape
+        center_x, center_y = width // 2, height // 2
+        center_color = frame[center_y, center_x]
+        color = tuple(int(c) for c in center_color)
+        current_rgb_color = color
+        current_rgb_name = get_color_name(current_rgb_color)
 
-            # Mengambil warna di titik tepat tengah layar
-            center_color = frame[center_y, center_x]
+        # Gambar pointer dan indikator warna di frame
+        draw_hollow_pointer(frame)
+        draw_color_indicator(frame, current_rgb_color)
 
-            # Gambar pointer dan color indicator
-            draw_hollow_pointer(frame)
-            draw_color_indicator(frame, center_color)
+        print(color, " = ", current_rgb_color , current_rgb_name)
+        
+        # Encode frame ke JPEG untuk streaming
+        ret, buffer = cv2.imencode('.jpg', frame)
+        frame = buffer.tobytes()
+        
+        yield (b'--frame\r\n'
+               b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
+    
+    cap.release()
 
-            # Encode frame ke format jpeg
-            ret, buffer = cv2.imencode('.jpg', frame)
-            frame = buffer.tobytes()
+# Tambahkan route untuk mengembalikan data warna sebagai JSON
+@app.route('/get_rgb')
+def get_rgb():
+    rgb_color = (current_rgb_color[2], current_rgb_color[1], current_rgb_color[0])
+    return jsonify({
+        'rgb': rgb_color,
+        'name': current_rgb_name
+    })  
 
-            # Menggunakan yield untuk mengirim frame secara streaming
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
-# Route untuk halaman webcam
 @app.route('/webcam')
 def webcam():
     return render_template('webcam.html')
 
-@app.route('/video_feed')
-def video_feed():
-    return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+@app.route('/video_feed/<camera_index>')
+def video_feed(camera_index):
+    return Response(generate_frames(camera_index), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 
 # COLOR PICKER FROM UPLOADED IMAGE
 # Route untuk upload gambar
@@ -150,11 +164,11 @@ def get_color_at():
     except Exception as e:
         return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
 
+
 # Route untuk halaman utama
 @app.route('/')
 def home():
     return render_template('home.html')
-
 
 # COLOR BLIND SIMULATION
 @app.route('/simulation')
@@ -188,7 +202,7 @@ def simulate_color_blindness(image, filter_type='clear'):
     
     return cv2.transform(image, transform)
 
-# Route untuk menangani frame yang dikirim dari frontend dan menerapkan filter
+# CAMIFY - Route untuk menangani frame yang dikirim dari frontend dan menerapkan filter
 @app.route('/process', methods=['POST'])
 def process():
     file = request.files['image'].read()
@@ -210,10 +224,15 @@ def process():
     return Response(buffer.tobytes(), mimetype='image/jpeg')
 
 
-# Route untuk halaman webcam
+# CAMIFY
 @app.route('/camify')
 def camify():
     return render_template('camify.html')
+
+# PICKERIFY CAMERA
+@app.route('/pickerify-camera')
+def pickerify_camera():
+    return render_template('pickerify-camera.html')
 
 
 # Jalankan aplikasi Flask

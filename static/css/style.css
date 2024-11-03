@@ -17,6 +17,22 @@
     position: absolute;
     top: 0;
     left: 0;
+    z-index: 1;
+}
+
+.wrapper {
+    display: block;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+#videoFeed{
+    width: 100vw;
+    height: 100vh;
 }
 
 /* Style controls section */
@@ -70,8 +86,9 @@
     width: 100vw;
     top: 20px;
     left: 0px;
-    z-index: 1000;
+    z-index: 9999;
     display: flex;
+    align-items: center;
     justify-content: space-between;
     padding: 0px 20px;
 }
@@ -90,6 +107,30 @@
 .btn-camera {
     width: 50px;
     margin-bottom: 5px; /* Tambahkan jarak antara ikon kamera dan dropdown */
+}
+
+.color-card {
+    padding: 4px 6px;
+    background-color: white;
+    width: 150px;
+    height: 36px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(85, 85, 85, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.color-indicator {
+    width: 26px;
+    height: 26px;
+    border-radius: 5px;
+    background-color: #0D99FF; /* Ganti warna ini sesuai RGB yang diinginkan */
+}
+
+.color-name {
+    font-size: 16px;
+    color: #333;
 }
 
 
