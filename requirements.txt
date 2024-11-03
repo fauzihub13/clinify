@@ -1,1 +1,3 @@
-flas
+flask
+opencv-python
+numpy

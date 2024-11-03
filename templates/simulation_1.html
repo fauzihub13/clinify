@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Color Blindness Simulation</title>
+    <style>
+        #output {
+            margin-top: 20px;
+            width: 640px;
+            height: 480px;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Webcam Color Blindness Simulation</h1>
+
+    <div>
+        <video id="video" width="640" height="480" autoplay style="display: none;"></video>
+        <canvas id="canvas" width="640" height="480" style="display:none;"></canvas>
+    </div>
+
+    <div id="controls">
+        <label for="filter">Choose Color Blindness Type:</label>
+        <select id="filter">
+            <option value="none" selected>Clear</option>
+            <option value="deuteranopia">Deuteranopia</option>
+            <option value="protanopia">Protanopia</option>
+            <option value="tritanopia">Tritanopia</option>
+            <option value="achromatopsia">Achromatopsia</option>
+            <option value="achromatomaly">Achromatomaly</option>
+        </select>
+        <button id="start-simulation">Start Simulation</button>
+    </div>
+
+    <div>
+        <img id="output" alt="Filtered Webcam Stream">
+    </div>
+
+    <p><a href="/">Back to Home</a></p>
+
+    <script>
+        const video = document.getElementById('video');
+        const canvas = document.getElementById('canvas');
+        const output = document.getElementById('output');
+        const filterSelect = document.getElementById('filter');
+        const startButton = document.getElementById('start-simulation');
+
+        // Akses webcam pengguna
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then((stream) => {
+                video.srcObject = stream;
+            })
+            .catch((err) => {
+                console.error('Error accessing camera: ' + err);
+            });
+
+        // Fungsi untuk menangkap frame video dan kirim ke server
+        function captureFrameAndSend() {
+            const context = canvas.getContext('2d');
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Mengambil frame dari canvas dan kirim ke backend
+            canvas.toBlob((blob) => {
+                const formData = new FormData();
+                formData.append('image', blob);
+                formData.append('filter', filterSelect.value);
+
+                fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.blob())
+                .then(blob => {
+                    // Tampilkan gambar hasil filter
+                    const url = URL.createObjectURL(blob);
+                    output.src = url;
+
+                    // Ulangi proses ini untuk menangkap frame berikutnya
+                    requestAnimationFrame(captureFrameAndSend);
+                })
+                .catch(err => console.error('Error processing image: ', err));
+            });
+        }
+
+        // Mulai simulasi ketika tombol ditekan
+        startButton.addEventListener('click', () => {
+            // Mulai proses pengambilan frame
+            captureFrameAndSend();
+        });
+        captureFrameAndSend()
+
+    </script>
+</body>
+</html>

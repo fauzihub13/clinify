@@ -173,7 +173,6 @@ def pickerify_image():
 
     return render_template('pickerify-image.html')
 
-
 @app.route('/upload_image', methods=['GET', 'POST'])
 def upload_image():
     global uploaded_image, uploaded_image_path
@@ -226,12 +225,11 @@ def get_color_at():
         return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
 # ====================== END PICKERIFY IMAGE ======================
 
-
 # ====================== START COLOR BLIND SIMULATION ======================
 # COLOR BLIND SIMULATION
 @app.route('/simulation')
 def simulation():
-    return render_template('camify.html')
+    return render_template('simulation.html')
 
 # Fungsi simulasi buta warna
 def simulate_color_blindness(image, filter_type='clear'):
@@ -260,7 +258,6 @@ def simulate_color_blindness(image, filter_type='clear'):
     
     return cv2.transform(image, transform)
 
-# CAMIFY - Route untuk menangani frame yang dikirim dari frontend dan menerapkan filter
 @app.route('/process', methods=['POST'])
 def process():
     file = request.files['image'].read()
@@ -281,6 +278,86 @@ def process():
     _, buffer = cv2.imencode('.jpg', filtered_img)
     return Response(buffer.tobytes(), mimetype='image/jpeg')
 # ====================== START COLOR BLIND SIMULATION ======================
+
+# ====================== START CAMIFY ======================
+@app.route('/camify')
+def camify():
+    return render_template('camify.html')
+
+import cv2
+import numpy as np
+
+# Fungsi untuk meningkatkan kontras warna bagi penderita buta warna
+def enhance_contrast_for_color_blindness(image, filter_type='clear'):
+    # Simulasi perubahan warna untuk setiap tipe buta warna
+    if filter_type == 'deuteranopia':
+        transform = np.array([[0.56667, 0.43333, 0],
+                              [0.55833, 0.44167, 0],
+                              [0, 0.24167, 0.75833]])
+        contrast_enhancement = np.array([[1.1, 0, 0],
+                                         [0, 1.2, 0],
+                                         [0, 0, 1.2]])
+    elif filter_type == 'protanopia':
+        transform = np.array([[0.367, 0.633, 0],
+                              [0.125, 0.875, 0],
+                              [0, 0.7, 0.3]])
+        contrast_enhancement = np.array([[1.3, 0, 0],
+                                         [0, 1.2, 0],
+                                         [0, 0, 1.1]])
+    elif filter_type == 'tritanopia':
+        transform = np.array([[0.95, 0.05, 0],
+                              [0, 0.43333, 0.56667],
+                              [0, 0.475, 0.525]])
+        contrast_enhancement = np.array([[1.2, 0, 0],
+                                         [0, 1.2, 0],
+                                         [0, 0, 1.3]])
+    elif filter_type == 'achromatopsia':
+        transform = np.array([[0.299, 0.587, 0.114],
+                              [0.299, 0.587, 0.114],
+                              [0.299, 0.587, 0.114]])
+        contrast_enhancement = np.array([[1.5, 0, 0],
+                                         [0, 1.5, 0],
+                                         [0, 0, 1.5]])
+    elif filter_type == 'achromatomaly':
+        transform = np.array([[0.618, 0.320, 0.062],
+                              [0.163, 0.775, 0.062],
+                              [0.163, 0.320, 0.516]])
+        contrast_enhancement = np.array([[1.2, 0, 0],
+                                         [0, 1.2, 0],
+                                         [0, 0, 1.2]])
+    else:
+        raise ValueError("Tipe buta warna tidak dikenal.")
+
+    # Terapkan transformasi warna
+    transformed_img = cv2.transform(image, transform)
+    
+    # Terapkan peningkatan kontras
+    enhanced_img = cv2.transform(transformed_img, contrast_enhancement)
+    
+    return enhanced_img
+
+# Endpoint untuk memproses gambar dan meningkatkan kontras
+@app.route('/contrast-process', methods=['POST'])
+def contrast_process():
+    file = request.files['image'].read()
+    nparr = np.frombuffer(file, np.uint8)
+    img = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+
+    # Mendapatkan filter dari request
+    filter_type = request.form.get('filter', 'none')
+
+    # Jika filter_type adalah 'none', gunakan gambar asli tanpa filter
+    if filter_type == 'none':
+        processed_img = img
+    else:
+        # Menerapkan peningkatan kontras untuk simulasi buta warna
+        processed_img = enhance_contrast_for_color_blindness(img, filter_type)
+
+    # Encode kembali ke format JPEG dan kirim kembali ke frontend
+    _, buffer = cv2.imencode('.jpg', processed_img)
+    return Response(buffer.tobytes(), mimetype='image/jpeg')
+
+# ====================== END CAMIFY ======================
 
 # Jalankan aplikasi Flask
 if __name__ == '__main__':

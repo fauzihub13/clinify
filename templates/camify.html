@@ -160,7 +160,7 @@
                 formData.append('image', blob);
                 formData.append('filter', selectedFilter);
 
-                fetch('/process', {
+                fetch('/contrast-process', {
                     method: 'POST',
                     body: formData
                 })
