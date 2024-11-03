@@ -20,6 +20,18 @@ uploaded_image_path = None
 current_rgb_color = (0, 0, 0)
 current_rgb_name = "Unknown"
 
+# ====================== START HOME ======================
+@app.route('/')
+def home():
+    return render_template('home.html')
+# ====================== START HOME ======================
+
+# ====================== START PICKERIFY CAMERA ======================
+# PICKERIFY CAMERA
+@app.route('/pickerify-camera')
+def pickerify_camera():
+    return render_template('pickerify-camera.html')
+
 # Fungsi untuk menentukan nama warna berdasarkan RGB
 def get_color_name(rgb_color):
     min_distance = float('inf')
@@ -79,9 +91,7 @@ def generate_frames(camera_index=0):
 
         # Gambar pointer dan indikator warna di frame
         draw_hollow_pointer(frame)
-        draw_color_indicator(frame, current_rgb_color)
-
-        print(color, " = ", current_rgb_color , current_rgb_name)
+        # draw_color_indicator(frame, current_rgb_color)
         
         # Encode frame ke JPEG untuk streaming
         ret, buffer = cv2.imencode('.jpg', frame)
@@ -101,7 +111,6 @@ def get_rgb():
         'name': current_rgb_name
     })  
 
-
 @app.route('/webcam')
 def webcam():
     return render_template('webcam.html')
@@ -109,10 +118,62 @@ def webcam():
 @app.route('/video_feed/<camera_index>')
 def video_feed(camera_index):
     return Response(generate_frames(camera_index), mimetype='multipart/x-mixed-replace; boundary=frame')
+# ====================== END PICKERIFY CAMERA ======================
+
+# ====================== START PICKERIFY IMAGE ======================
+@app.route('/pickerify-upload-image', methods=['GET', 'POST'])
+def pickerify_upload_image():
+    global uploaded_image, uploaded_image_path
+    if request.method == 'POST':
+        if 'image' not in request.files:
+            return jsonify({"error": "No file part"}), 400
+        file = request.files['image']
+        if file.filename == '':
+            return jsonify({"error": "No selected file"}), 400
+
+        if file:
+            # Simpan gambar yang diunggah ke folder uploads
+            filename = file.filename
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
+
+            # Baca gambar menggunakan OpenCV
+            uploaded_image = cv2.imread(filepath)
+            uploaded_image_path = filepath
+
+            # Kirim path gambar yang diunggah kembali ke klien dalam format JSON
+            return jsonify({"image_url": url_for('static', filename=f'uploads/{filename}')})
+            # return render_template('pickerify-upload-image.html', image_path=url_for('static', filename='uploads/' + filename))
+
+        return jsonify({"error": "File upload failed"}), 500
+
+    return render_template('pickerify-upload-image.html')
+
+@app.route('/pickerify-image', methods=['POST'])
+def pickerify_image():
+    global uploaded_image, uploaded_image_path
+    if request.method == 'POST':
+        if 'image' not in request.files:
+            return redirect(request.url)
+        file = request.files['image']
+        if file.filename == '':
+            return redirect(request.url)
+
+        if file:
+            # Simpan gambar yang diunggah ke folder uploads
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], file.filename)
+            file.save(filepath)
+
+            # Baca gambar menggunakan OpenCV
+            uploaded_image = cv2.imread(filepath)
+            uploaded_image_path = filepath
+
+            # Render halaman dengan gambar yang diunggah
+            return render_template('pickerify-image.html', image_path=url_for('static', filename='uploads/' + file.filename))
+
+    return render_template('pickerify-image.html')
 
 
-# COLOR PICKER FROM UPLOADED IMAGE
-# Route untuk upload gambar
 @app.route('/upload_image', methods=['GET', 'POST'])
 def upload_image():
     global uploaded_image, uploaded_image_path
@@ -163,17 +224,14 @@ def get_color_at():
         return jsonify({'color_name': color_name, 'rgb': {'r': r, 'g': g, 'b': b}})
     except Exception as e:
         return jsonify({'error': 'Internal server error', 'details': str(e)}), 500
+# ====================== END PICKERIFY IMAGE ======================
 
 
-# Route untuk halaman utama
-@app.route('/')
-def home():
-    return render_template('home.html')
-
+# ====================== START COLOR BLIND SIMULATION ======================
 # COLOR BLIND SIMULATION
 @app.route('/simulation')
 def simulation():
-    return render_template('simulation.html')
+    return render_template('camify.html')
 
 # Fungsi simulasi buta warna
 def simulate_color_blindness(image, filter_type='clear'):
@@ -222,18 +280,7 @@ def process():
     # Encode kembali ke format JPEG dan kirim kembali ke frontend
     _, buffer = cv2.imencode('.jpg', filtered_img)
     return Response(buffer.tobytes(), mimetype='image/jpeg')
-
-
-# CAMIFY
-@app.route('/camify')
-def camify():
-    return render_template('camify.html')
-
-# PICKERIFY CAMERA
-@app.route('/pickerify-camera')
-def pickerify_camera():
-    return render_template('pickerify-camera.html')
-
+# ====================== START COLOR BLIND SIMULATION ======================
 
 # Jalankan aplikasi Flask
 if __name__ == '__main__':

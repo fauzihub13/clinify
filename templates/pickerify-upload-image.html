@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Pickerify Camera</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</head>
+<body>
+    <main>
+        <div class="row">
+            <div class="col-12">
+                <!-- Start Back Button --> 
+                <div class="header-card">
+                    <div class="fixed-left-button">
+                        <img class="btn-back" src="{{ url_for('static', filename='assets/back.png') }}" alt="">
+                    </div>
+                    <div class="header-page justify-content-center">
+                        <!-- Start Card Title-->
+                        <div class="card-title">
+                            <h5 class="text-white fw-bold">Pickerify Image</h5>
+                            <p class="text-white mb-0">Temukan Warna Asli di Sekitar Anda.</p>
+                        </div>
+                        <!-- End Card Title -->
+                    </div>
+                    <div class="fixed-right-button">
+                        <a href="/pickerify-upload-image"><img class="btn-back" src="{{ url_for('static', filename='assets/refresh.png') }}" alt="Refresh" ></a>
+                    </div>
+                </div>
+                
+                <!-- End Back Button --> 
+                <div class="main-card align-content-center">
+                    <div class="wrap-upload-image d-flex flex-column align-items-center justify-content-center">
+                        <div id="input-section">
+                            <img class="mx-auto" src="{{ url_for('static', filename='assets/image-svgrepo-com 1.png') }}" alt="Image">
+                            <p class="text-center text-black-50">Temukan Warna Asli disekitarmu dengan dalam satu ketukan</p>
+                            <div class="upload-container text-center mb-2">
+                                <input type="file" id="uploadImage" style="display: none;" accept=".jpg, .jpeg, .png">
+                                <button class="btn-upload blue-gradient border-0 text-white" onclick="document.getElementById('uploadImage').click()">Unggah Gambar</button>
+                            </div>
+                        </div>
+
+                        <!-- Uploaded Image Section -->
+                        <div id="uploaded-section" style="display: none;">
+                            <!-- <h4>Uploaded Image</h4> -->
+                            <img src="{{ image_path }}" width="640" height="480" id="uploaded-image">
+                            <div class="d-flex flex-column align-items-center mt-2">
+                                <div class="d-flex justify-content-center mb-2">
+                                    <div id="color-box" class="color-indicator me-2"></div>
+                                    <div id="color-info" class="align-self-center"></div>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    </div>                    
+
+                   
+                </div>
+                <!-- End Input Stream -->
+            </div>
+        </div>
+    </main>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('uploadImage').addEventListener('change', autoUpload);
+
+            function autoUpload() {
+                const uploadInput = document.getElementById('uploadImage');
+                
+                if (uploadInput.files.length > 0) {
+                    const formData = new FormData();
+                    formData.append('image', uploadInput.files[0]);
+
+                    fetch('/pickerify-upload-image', {
+                        method: 'POST',
+                        body: formData
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.image_url) {
+                            document.getElementById('input-section').style.display = 'none';
+                            document.getElementById('uploaded-section').style.display = 'block';
+                            document.getElementById('uploaded-image').src = data.image_url;
+                            console.log('File uploaded successfully:', data.image_url);
+
+                            
+                        } else if (data.error) {
+                            console.error('Upload error:', data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error uploading file:', error);
+                    });
+                }
+            }
+
+            const image = document.getElementById('uploaded-image');
+            const colorInfo = document.getElementById('color-info');
+            const colorBox = document.getElementById('color-box');
+
+            if (image) {
+                image.addEventListener('click', function(event) {
+                    const rect = image.getBoundingClientRect();
+                    const scaleX = image.naturalWidth / rect.width;
+                    const scaleY = image.naturalHeight / rect.height;
+
+                    const x = Math.floor((event.clientX - rect.left) * scaleX);
+                    const y = Math.floor((event.clientY - rect.top) * scaleY);
+
+                    fetch('/get_color_at', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: `x=${x}&y=${y}`
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.error) {
+                            colorInfo.textContent = data.error;
+                        } else {
+                            colorInfo.textContent = `Color: ${data.color_name}, RGB: (${data.rgb.r}, ${data.rgb.g}, ${data.rgb.b})`;
+                            colorBox.style.backgroundColor = `rgb(${data.rgb.r}, ${data.rgb.g}, ${data.rgb.b})`;
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                });
+            }
+        });
+
+    </script>
+</body>
+</html>

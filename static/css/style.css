@@ -1,3 +1,7 @@
+body {
+    font-family: 'Poppins', sans-serif;
+}
+
 /* Make the video and canvas take up full screen */
 #video, #canvas {
     display: none;
@@ -121,7 +125,7 @@
     gap: 10px;
 }
 
-.color-indicator {
+.color-indicator, #color-box {
     width: 26px;
     height: 26px;
     border-radius: 5px;
@@ -133,7 +137,80 @@
     color: #333;
 }
 
+.header-page{
 
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+}
+
+.header-card{
+    padding: 20px 20px;
+}
+
+main{
+    height: 100vh;
+    width: 100vw;
+    background: linear-gradient(to top right, #0D99FF 0%, #53CDD8 47%, #96EAB7 100%) no-repeat;
+    overflow: hidden;
+}
+
+.blue-gradient{
+    background: linear-gradient(to top right, #0D99FF 0%, #53CDD8 47%, #96EAB7 100%) no-repeat;
+    
+}
+
+.card-title{
+    text-align: center;
+    align-items: center;
+    color: white;
+}
+
+.main-card{
+    width: 100%;
+    height: 100vh;
+    background-color: white;
+    border-radius: 50px ;
+}
+
+.fixed-left-button{
+    position: fixed;
+    top: 20px;
+    left: 20px;
+}
+
+.fixed-right-button{
+    position: fixed;
+    top: 20px;
+    right: 20px;
+}
+
+.wrap-upload-image {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center; 
+    text-align: center; 
+}
+
+.btn-upload {
+    padding: 12px 20px;
+    border-radius: 20px;
+}
+
+.card-image {
+    width: 100px;
+    height: 100px;
+}
+
+
+
+@media (max-width: 768px) { 
+    .btn-back {
+        width: 34px ;
+    }
+}
 
 @media (min-width: 768px) and (max-width: 991.98px) { 
     #controls {
