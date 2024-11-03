@@ -84,7 +84,7 @@
                 .then(response => response.json())
                 .then(data => {
                     const rgb = data.rgb;
-                    console.log(data)
+                    // console.log(data)
                     // document.getElementById('colorInfo').textContent = `RGB: (${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
                     document.getElementById('color-indicator').style.backgroundColor = `rgb(${rgb[0]}, ${rgb[1]}, ${rgb[2]})`;
                     document.getElementById('color-name').textContent = data.name;

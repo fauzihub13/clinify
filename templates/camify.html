@@ -21,12 +21,18 @@
                     </div>
                     <div class="camera-options">
                         <img class="btn-camera" src="{{ url_for('static', filename='assets/camera.png') }}" alt="" onclick="showCameraOptions()">
-                        <div id="camera-select-container" class="mb-3" style="display: none;">
-                            <label for="camera-select" class="form-label"></label>
-                            <select id="camera-select" class="form-select"></select>
-                        </div>
+                        
                     </div>
+                    
                 </div>
+                
+                <!-- MODAL CAMERA OPTION -->
+                <div id="camera-select-container" class="mb-3" style="display: none;">
+                    <label for="camera-select" class="form-label"></label>
+                    <select id="camera-select" class="form-select"></select>
+                </div>
+                
+                
                 <!-- End Back Button --> 
 
                 <!-- Start Input Stream -->

@@ -106,6 +106,10 @@ html, body {
     width: 50px ;
 }
 
+.btn-back-2 {
+    width: 50px ;
+}
+
 .camera-options {
     display: flex;
     flex-direction: column; /* Atur agar elemen di dalamnya disusun vertikal */
@@ -259,12 +263,24 @@ main {
     height: 100px;
 }
 
+#camera-select-container{
+    width: calc(100vw - 100px);
+    top: 80px;
+    right: 20px;
+    position: fixed;
+    margin-top: auto;
+    margin-bottom: auto;
+    z-index: 999999;
+}
+
 
 
 @media (max-width: 768px) { 
-    .btn-back {
+    .btn-back-2 {
         width: 34px ;
     }
+
+    
 }
 
 @media (min-width: 768px) and (max-width: 991.98px) { 
