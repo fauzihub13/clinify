@@ -273,7 +273,17 @@ main {
     z-index: 999999;
 }
 
+.header-image{
+    max-width: 400px;
+    height: auto;
+}
+
+.header-text{
+    font-size: 30px;
+}
+
 .search-bar {
+    width: 80%;
     background: white;
     border-radius: 60px;
     box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
@@ -288,6 +298,10 @@ main {
     
 }
 
+.menu-section {
+    gap: 60px;
+}
+
 .menu{
     text-decoration: none;
     color: black;
@@ -299,10 +313,11 @@ main {
 
 .menu-icon {
     box-shadow: inset 0px 2px 8px rgba(0, 0, 0, 0.15);
+    width: auto;
 }
 
 .menu-icon img{
-    width: 40px;
+    width: 50px;
     height: auto;
 }
 
@@ -311,6 +326,24 @@ main {
 @media (max-width: 768px) { 
     .btn-back-2 {
         width: 34px ;
+    }
+
+    .header-image{
+        max-width: 200px;
+        height: auto;
+    }
+
+    .header-text{
+        font-size: 16px;
+    }
+
+    .search-bar {
+        width: 100%;
+    }
+
+    
+    .menu-section {
+        gap: 20px;
     }
 
     
