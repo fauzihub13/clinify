@@ -273,6 +273,39 @@ main {
     z-index: 999999;
 }
 
+.search-bar {
+    background: white;
+    border-radius: 60px;
+    box-shadow: rgba(149, 157, 165, 0.2) 0px 8px 24px;
+    position: relative;
+    top: -30px; /* Adjust this value to control the overlap */
+    z-index: 10; /* Ensures it stays above other elements */
+}
+
+.icon-search {
+    width: 80px;
+    height: auto;
+    
+}
+
+.menu{
+    text-decoration: none;
+    color: black;
+}
+
+.menu:hover{
+    cursor: pointer;
+}
+
+.menu-icon {
+    box-shadow: inset 0px 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.menu-icon img{
+    width: 40px;
+    height: auto;
+}
+
 
 
 @media (max-width: 768px) { 

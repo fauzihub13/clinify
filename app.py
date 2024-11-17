@@ -23,7 +23,7 @@ current_rgb_name = "Unknown"
 # ====================== START HOME ======================
 @app.route('/')
 def home():
-    return render_template('home.html')
+    return render_template('index.html')
 # ====================== START HOME ======================
 
 # ====================== START PICKERIFY CAMERA ======================
