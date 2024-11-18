@@ -321,6 +321,41 @@ main {
     height: auto;
 }
 
+.article-section{
+    border-radius: 20px;
+    gap: 20px;
+}
+
+.article-section a{
+    text-decoration: none;
+    color: black;
+}
+
+.article-card{
+    width: 30%;
+    border-radius: 20px;
+    box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
+}
+
+
+.article-image-container {
+    width: 100%;
+    height: 200px; /* You can adjust this height depending on how large you want the image to be */
+    overflow: hidden; /* This ensures that the image does not overflow the container */
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.article-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* This ensures the image covers the container while maintaining its aspect ratio */
+}
+
+.clear-area{
+    height: 100px;
+    width: 100%;
+}
 
 
 @media (max-width: 768px) { 
@@ -344,6 +379,10 @@ main {
     
     .menu-section {
         gap: 20px;
+    }
+
+    .article-card{
+        width: 90%;
     }
 
     
