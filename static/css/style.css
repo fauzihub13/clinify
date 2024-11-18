@@ -70,6 +70,7 @@ html, body {
     display: flex;
     align-items: center;
     cursor: pointer;
+    font-weight: 600;
     padding: 8px 16px; /* Padding untuk label */
     background: linear-gradient(to top right,#0D99FF33 0%, #53CDD833 47%, #96EAB733 100%);
     border-radius: 10px; /* Sudut melengkung */
@@ -88,6 +89,7 @@ html, body {
 #filter input[type="radio"]:checked + label {
     background: linear-gradient(to top right,#0D99FF 0%, #53CDD8 47%, #96EAB7 100%);
     color: white; /* Warna teks putih ketika dipilih */
+    box-shadow: 2px 2px 4px #3333339c;
 }
 
 .header{
@@ -104,10 +106,12 @@ html, body {
 
 .btn-back {
     width: 50px ;
+    cursor: pointer;
 }
 
 .btn-back-2 {
     width: 50px ;
+    cursor: pointer;
 }
 
 .camera-options {
@@ -119,7 +123,8 @@ html, body {
 
 .btn-camera {
     width: 50px;
-    margin-bottom: 5px; /* Tambahkan jarak antara ikon kamera dan dropdown */
+    margin-bottom: 5px;
+    cursor: pointer; /* Tambahkan jarak antara ikon kamera dan dropdown */
 }
 
 .color-card {
@@ -315,6 +320,9 @@ main {
     box-shadow: inset 0px 2px 8px rgba(0, 0, 0, 0.15);
     width: auto;
 }
+.menu-icon:hover {
+    background-color: rgba(0, 0, 0, 0.194);
+}
 
 .menu-icon img{
     width: 50px;
@@ -373,12 +381,18 @@ main {
     }
 
     .search-bar {
+        scale: 80%;
         width: 100%;
     }
 
     
     .menu-section {
         gap: 20px;
+    }
+    .menu {
+        scale: 70%;
+        gap: 0;
+        margin-top: -50px;
     }
 
     .article-card{
